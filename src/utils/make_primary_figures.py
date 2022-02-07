@@ -1,5 +1,5 @@
-import utils
-import dataset_utils
+import src.utils.utils as utils
+import src.utils.dataset_utils as ds_utils
 import os
 import numpy as np
 import pandas as pd
@@ -228,7 +228,7 @@ def main():
     exp = args.exp
     assert os.path.exists(input_path), 'provided input path does not exist!'
     assert os.path.exists(output_path), 'provided output path does not exist!'
-    data = dataset_utils.load_exp_data(input_path)
+    data = ds_utils.load_exp_data(input_path)
     slider_dict = data['slider_dict']
     model_mat_fits = data['model_mat_fits']
     melted_mmf = data['melted_mmf']

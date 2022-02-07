@@ -1,4 +1,4 @@
-import utils
+import src.utils.utils as utils
 import pandas as pd
 import pickle
 import os
@@ -29,6 +29,19 @@ def filter_df(input_df, subject_list):
         input_df = input_df.drop(columns={'Unnamed: 0'})
     filtered_df = input_df[input_df['subid'].isin(subject_list)]
     return filtered_df
+
+
+def filter_dict(input_path, output_path, subject_list):
+    pickle_path = os.path.join(input_path, 'slider_dicts.pickle')
+    with open(pickle_path, 'rb') as handle:
+        input_dict = pickle.load(handle)
+    filtering_subs = set(input_dict.keys()) - set(subject_list)
+    output_dict = input_dict.copy()
+    for sub in filtering_subs:
+        del output_dict[sub]
+    slider_pickle_out = os.path.join(output_path, 'slider_dicts.pickle')
+    pickle.dump(output_dict, open(slider_pickle_out, "wb"))
+    return output_dict
 
 
 def make_sub_dicts(input_path):
@@ -125,7 +138,7 @@ def model_fit_threshold(input_path, output_path, subjects, exp_num):
     for sub in subids:
         sub_w1_map_df = w1_map_df[w1_map_df['subid'] == sub]
         assert len(sub_w1_map_df) > 0, f'you need to rerun model fit for {sub}!'
-        if sub_w1_map_df['LL'].values[0] > 172.846:
+        if sub_w1_map_df['LL'].values[0] > 172.846:  # this number is from generating 1000 randomly selecting agents
             bad_subjects.append(sub)
             num_thresh_model_fit += 1
             continue
@@ -171,31 +184,7 @@ def make_overall_stake_df(input_path, output_path, subjects=None):
     overall_df.to_csv(overall_out_file)
 
 
-def make_slider_df(input_path, output_path, subjects=None, hvl=False):
-    """
-    Generates the dataframe and slider_dicts that contains the behRSA data
-    :param input_path: path to look for the raw csv data for the slider task
-    :param output_path: path to save out
-    slider_dict and slider_df
-    :param subjects: list of subjects to include in analysis (if not provided subids are
-    sourced from sub_dict in input path)
-    :param hvl: whether you want standard model matrices or are comparing hvl (hvl=True)
-    :return: outputs a slider_dict and slider_df containing data for use in further analyses
-    """
-    slider_df = pd.read_csv(os.path.join(input_path, 'memory_2step_slider_data.csv'))
-    slider_df = slider_df.drop_duplicates()
-    stringify(slider_df)
-    pickle_path = os.path.join(input_path, 'sub_dicts.pickle')
-    with open(pickle_path, 'rb') as handle:
-        sub_dict = pickle.load(handle)
-    slider_dict = {}
-    subids = subjects
-    assert len(
-        set(subids) - set(slider_df.subid.unique())) <= 0, "trying to grab subjects that don't exist in raw data!"
-    for sub in subids:
-        sub_slider_df = slider_df[slider_df['subid'] == sub]
-        stake, isbad = utils.create_stake_sorted_sliders(sub_dict, sub, sub_slider_df)
-        slider_dict[sub] = [sub, stake]
+def make_slider_df(slider_dict, output_path, hvl=False):
     coef_vals = {}
     if not hvl:
         model_mats = utils.create_model_matrices()
@@ -214,8 +203,7 @@ def make_slider_df(input_path, output_path, subjects=None, hvl=False):
             X = sub_regr_df[['state1', 'l', 'o']]
             y = sub_regr_df['subject_data']
             regr_high.fit(X, y)
-            # adj_rsquared = 1 - (1-regr_high.score(X, y))*(len(y)-1)/(len(y)-X.shape[1]-1) #calculating adju1sted_rsquared
-            coef_vals[sub] = [regr_high.coef_[0], regr_high.coef_[1], regr_high.coef_[2], sub_dict[sub]['high_arm']]
+            coef_vals[sub] = [regr_high.coef_[0], regr_high.coef_[1], regr_high.coef_[2], slider_dict[sub][2]]
         model_mat_fits = pd.DataFrame(coef_vals).T.reset_index()
         model_mat_fits = model_mat_fits.rename(
             columns={'index': 'subid', 0: 'state1_coef', 1: 'l_coef', 2: 'o_coef', 3: 'high_arm'})
@@ -240,7 +228,7 @@ def make_slider_df(input_path, output_path, subjects=None, hvl=False):
             regr_high.fit(sub_regr_df[['state1_high', 'l_high', 'o_high', 'state1_low', 'l_low', 'o_low']],
                           sub_regr_df['subject_data'])
             coef_vals[sub] = [regr_high.coef_[0], regr_high.coef_[1], regr_high.coef_[2],
-                              regr_high.coef_[3], regr_high.coef_[4], regr_high.coef_[5], sub_dict[sub]['high_arm']]
+                              regr_high.coef_[3], regr_high.coef_[4], regr_high.coef_[5], slider_dict[sub][2]]
             model_mat_fits = pd.DataFrame(coef_vals).T.reset_index()
             model_mat_fits = model_mat_fits.rename(
                 columns={'index': 'subid', 0: 'state1_high_coef', 1: 'l_high_coef', 2: 'o_high_coef',
@@ -250,8 +238,26 @@ def make_slider_df(input_path, output_path, subjects=None, hvl=False):
             model_mat_fits['o_diff'] = model_mat_fits['o_high_coef'] - model_mat_fits['o_low_coef']
             model_mat_outfile = os.path.join(output_path, 'model_mat_fits_hvl.csv')
     model_mat_fits.to_csv(model_mat_outfile)
+
+
+def make_slider_dict(input_path, output_path, subjects=None):
+    slider_df = pd.read_csv(os.path.join(input_path, 'memory_2step_slider_data.csv'))
+    slider_df = slider_df.drop_duplicates()
+    stringify(slider_df)
+    pickle_path = os.path.join(input_path, 'sub_dicts.pickle')
+    with open(pickle_path, 'rb') as handle:
+        sub_dict = pickle.load(handle)
+    slider_dict = {}
+    subids = subjects
+    assert len(
+        set(subids) - set(slider_df.subid.unique())) <= 0, "trying to grab subjects that don't exist in raw data!"
+    for sub in subids:
+        sub_slider_df = slider_df[slider_df['subid'] == sub]
+        stake, isbad = utils.create_stake_sorted_sliders(sub_dict, sub, sub_slider_df)
+        slider_dict[sub] = [sub, stake, sub_dict[sub]['high_arm']]
     slider_pickle_out = os.path.join(output_path, 'slider_dicts.pickle')
     pickle.dump(slider_dict, open(slider_pickle_out, "wb"))
+    return slider_dict
 
 
 def make_memory_df(input_path, output_path, subjects=None, exp_num=2):
@@ -339,7 +345,7 @@ def make_memory_df(input_path, output_path, subjects=None, exp_num=2):
         clean_back_df.to_csv(os.path.join(output_path, 'memory_df.csv'))
 
 
-def make_pca_df(input_path, subjects=None):
+def make_pca_df(input_path, output_path, subjects=None):
     lower_indices = np.tril_indices(10, -1, 10)  # m, k n
     slider_pickle_in = os.path.join(input_path, 'slider_dicts.pickle')
     slider_dict = pickle.load(open(slider_pickle_in, 'rb'))
@@ -355,7 +361,7 @@ def make_pca_df(input_path, subjects=None):
     pca_df['pc_1'] = pca.components_[0, :]
     pca_df['pc_2'] = pca.components_[1, :]
     pca_df['pc_3'] = pca.components_[2, :]
-    pca_df.to_csv(os.path.join(input_path, 'pca_df.csv'))
+    pca_df.to_csv(os.path.join(output_path, 'pca_df.csv'))
     return pca_df
 
 

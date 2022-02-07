@@ -105,7 +105,7 @@ def create_fit_df(subnum, df):
     sub_df.loc[:, 'stim_right_num'] = sub_df['stim_right']
     sub_df['stim_right_num'].replace(new_map_dict, inplace=True)
     sub_df.loc[:, 'points'] = sub_df['points'].apply(lambda x: x / 9)
-    sub_df = sub_df.drop(columns={'index'})
+    # sub_df = sub_df.drop(columns={'index'})
     return sub_df
 
 
