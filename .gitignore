@@ -1,0 +1,15 @@
+*.egg-info
+.DS_Store
+*/.DS_Store
+jspych/plugins*
+jspych/plugins/*
+jspych/plugins/*.js
+memory-two-step.sublime-project
+memory-two-step.sublime-workspace
+**.png
+**.csv
+**.pickle
+**.pkl
+**.jpg
+**.xlsx
+/utils/.ipynb_checkpoints/
