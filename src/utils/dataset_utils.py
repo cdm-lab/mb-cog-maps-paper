@@ -132,6 +132,7 @@ def make_good_subjects_list(input_path, output_path, exp_num=2):
 
 def model_fit_threshold(input_path, output_path, subjects, exp_num):
     w1_map_df = pd.read_csv(os.path.join(input_path, 'w1_map_df.csv'))
+    stringify(w1_map_df)
     bad_subjects = []
     num_thresh_model_fit = 0
     subids = subjects
@@ -410,7 +411,7 @@ def load_exp_data(data_path):
         pca_df = pd.read_csv(pca_file)
     else:
         print('pca_df not found')
-        dprime_df = ''
+        pca_df = ''
 
     dprime_file = os.path.join(data_path, 'dprime_df.csv')
     if os.path.exists(dprime_file):
