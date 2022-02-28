@@ -13,3 +13,5 @@ memory-two-step.sublime-workspace
 **.jpg
 **.xlsx
 /utils/.ipynb_checkpoints/
+**.pyc
+**.idea

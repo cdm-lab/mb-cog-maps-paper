@@ -5,7 +5,7 @@ import pandas as pd
 import pingouin as pg
 import numpy as np
 
-import dataset_utils
+import src.utils.dataset_utils as dataset_utils
 
 
 def model_mat_fits_ttests(model_mat_fits, model_mat_hvl):

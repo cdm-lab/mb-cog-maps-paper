@@ -10,7 +10,7 @@ import sys
 import time
 import argparse
 import scipy.optimize
-from mb_mf_fit import *
+from src.rl.mb_mf_fit import *
 import pickle
 from multiprocessing import Pool
 
@@ -39,7 +39,7 @@ def fit(sub_df, model_name, stakes, sophistication, final):
                       (0.00001, 0.9999), (0.00001, 0.9999), (-20, 20), (-20, 20), (0.00001, 0.9999), (0.00001, 0.9999)]
         elif sophistication == 'hardcode_etakappa':
             bounds = [(0.00001, 20), (0.00001, 0.9999), (0.00001, 0.9999), (0.00001, 0.9999), (0.00001, 0.9999),
-                      (0.00001, 0.9999), (0.00001, 0.9999), (-20, 20), (-20, 20), (1.0,  1.0), (1.0, 1.0)]
+                      (0.00001, 0.9999), (0.00001, 0.9999), (-20, 20), (-20, 20), (1.0-1e-9,  1.0), (1.0-1e-9, 1.0)]
         elif sophistication == 'eta':
             bounds = [(0.00001, 20), (0.00001, 0.9999), (0.00001, 0.9999), (0.00001, 0.9999), (0.00001, 0.9999),
                       (0.00001, 0.9999), (0.00001, 0.9999), (-20, 20), (-20, 20), (0.00001, 0.9999), (0.00001, 0.9999)]
@@ -102,7 +102,7 @@ def main():
         filename = os.path.join(output_path, f'{sub}_{model_name}_w{stakes}_final_transmats_fits.pickle')
     with open(filename, 'wb') as handle:
         pickle.dump(results, handle)
-    print("--- %s seconds ---" % (time.time() - start_time))
+    print("--- %s seconds ---" % (np.round(time.time() - start_time,2)))
 
 
 if __name__ == '__main__':

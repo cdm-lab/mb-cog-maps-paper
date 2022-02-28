@@ -1,13 +1,13 @@
 import os
 import time
 import argparse
-from mb_mf_fit import *
-from sarsa_agent import *
+from src.rl.mb_mf_fit import *
+from src.rl.sarsa_agent import *
 import pickle
 from multiprocessing import Pool
 
 
-def simulate_agent(high_arm, w_count, params, filename, agent_num, final, coin_flip):
+def simulate_agent(high_arm, w_count, params, filename, agent_num, final, coin_flip=None):
     """
     :param high_arm: which arm is the high-context arm (0 or 1)
     :param w_count: how many different w parameters to instantiate

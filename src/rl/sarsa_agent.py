@@ -192,8 +192,8 @@ def MBMF_deterministic_1choice_rew_sim(params, rews, states, stakes, final, high
 
             virtual_spe = 1 - Tm[s1 - 1][abs(s2 - 3) - 1, abs(a - 3) - 1]
             Tm[s1 - 1][abs(s2 - 3) - 1, abs(a - 3) - 1] = Tm[s1 - 1][abs(s2 - 3) - 1, abs(a - 3) - 1] + (
-                    eta * kappa) * virtual_spe
-            Tm[s1 - 1][s2 - 1, abs(a - 3) - 1] = Tm[s1 - 1][s2 - 1, abs(a - 3) - 1] * (1 - (eta * kappa))
+                    kappa) * virtual_spe
+            Tm[s1 - 1][s2 - 1, abs(a - 3) - 1] = Tm[s1 - 1][s2 - 1, abs(a - 3) - 1] * (1 - (kappa))
 
         dtQ[0] = Q2[s2 - 1] - Qmf[s1 - 1, a - 1]  # backup with actual choice (i.e., sarsa)
         Qmf[s1 - 1, a - 1] = Qmf[s1 - 1, a - 1] + lr * dtQ[0]  # update TD value function
