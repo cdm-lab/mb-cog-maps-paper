@@ -14,7 +14,8 @@ mpl.rcParams['figure.dpi'] = 200
 def set_palettes():
     w4_palette = ['#9e9ac8', '#756bb1', '#fb6a4a', '#de2d26']
     talking_heads = ['#6095ca', '#fbb91e', '#6aaf75']
-    mem_palette = ['#e6508b', '#70AF41']
+    # mem_palette = ['#e6508b', '#70AF41']
+    mem_palette = ['#a7a9ab','#666a70']
     return w4_palette, talking_heads, mem_palette
 
 
@@ -66,9 +67,9 @@ def make_figure_2(slider_dict, output_path):
             axs[i, j].set_xticklabels(empty_label)
 
     # axs[0, 2].yaxis.set_label_position("right")
-    axs[0, 0].set_ylabel('Model Matrices', fontsize=fontsize, labelpad=15)
+    axs[0, 0].set_ylabel('Model matrices', fontsize=fontsize, labelpad=15)
     # axs[1, 2].yaxis.set_label_position("right")
-    axs[1, 0].set_ylabel('Example Participants', fontsize=fontsize, labelpad=15)
+    axs[1, 0].set_ylabel('Example participants', fontsize=fontsize, labelpad=15)
     filename = os.path.join(output_path, 'Fig2.png')
     fig.tight_layout()
     fig.savefig(filename, dpi=250, transparent=True)
@@ -112,19 +113,26 @@ def make_figure_3(pca_df, output_path):
     fig.savefig(filename_fig_3, dpi=200, bbox_inches="tight")
 
 
-def make_figure_4(model_mat_fits, melted_mmf, output_path):
+def make_figure_4(model_mat_fits, melted_mmf, output_path,exp):
     y, talking_heads, _ = set_palettes()
     fontsize = 14
+    height = 5.4
     model_melt = model_mat_fits.melt(id_vars=['subid', 'high_arm'], var_name='state', value_name='coef')
     # making figure 4A
-    g = sns.catplot(data=model_melt, x='state', y='coef', kind='strip', height=4, palette=talking_heads)
+    g = sns.catplot(data=model_melt, x='state', y='coef', kind='strip', height=height, palette=talking_heads)
     ax = sns.pointplot(data=model_melt, y='coef', x='state', color='black', join=False, ci=95, scale=0.7)
     custom_label = ['Visual cooccurrence', 'Direct item association', 'Indirect item association']
     # custom_label = ['', '', '']
-    plt.title('', y=1.1, fontsize=fontsize)
+    plt.title('behRSA model matrix fits', y=1.1, fontsize=fontsize)
+    # adding zero line
     plt.setp(ax.lines, zorder=100)
     plt.setp(ax.collections, zorder=100, label="")
+
     plt.axhline(0, linestyle='--', color='red', zorder=120)
+    # plotting significance asterisks
+    plt.text(0,ax.get_ylim()[1],'*',ha='center',color='black',fontsize=fontsize+6,weight='bold')
+    plt.text(1,ax.get_ylim()[1],'*',ha='center',color='black',fontsize=fontsize+6,weight='bold')
+    plt.text(2,ax.get_ylim()[1],'*',ha='center',color='black',fontsize=fontsize+6,weight='bold')
     g.set_xticklabels(custom_label, rotation=30, fontsize=fontsize)
     round_ticks = [int(x) for x in g.axes[0, 0].get_yticks()]
     g.set_yticklabels(round_ticks, fontsize=fontsize)
@@ -132,27 +140,32 @@ def make_figure_4(model_mat_fits, melted_mmf, output_path):
     g.set_xlabels('')
     g.fig.set_facecolor('w')
     filename_fig_4a = os.path.join(output_path, 'Fig4A.png')
-    g.savefig(filename_fig_4a, facecolor='w', dpi=250)
+    g.fig.text(0,1.05,'A',fontsize=fontsize+10,weight='bold')
+    g.savefig(filename_fig_4a, facecolor='w', dpi=300)
     # making figure 4B
-    g = sns.catplot(data=melted_mmf, x='coef', y='value', kind='strip', height=4, palette=talking_heads)
+    g = sns.catplot(data=melted_mmf, x='coef', y='value', kind='strip', height=height, palette=talking_heads)
     ax = sns.pointplot(data=melted_mmf, x='coef', y='value', color='black', join=False, ci=95, scale=0.7)
-    plt.title('', y=1.1, fontsize=fontsize)
-
+    plt.title('Difference score between high-reward and low-reward', y=1.1, fontsize=fontsize)
+    # adding zero line
     plt.setp(ax.lines, zorder=100)
     plt.setp(ax.collections, zorder=100, label="")
     plt.axhline(0, linestyle='--', color='red', zorder=120)
+    # plotting significance asterisk
+    if exp == 2:
+        plt.text(2,93,'*',ha='center',color='black',fontsize=fontsize+6,weight='bold')
     g.set_xticklabels(custom_label, rotation=30, fontsize=fontsize)
     round_ticks = [int(x) for x in g.axes[0, 0].get_yticks()]
     g.set_yticklabels(round_ticks, fontsize=fontsize)
-    g.set_ylabels(r'High Stake Context ($\bar{\beta}$) - Low Stake Context ($\bar{\beta}$)', fontsize=fontsize)
+    g.set_ylabels(r'High stake context ($\bar{\beta}$) - Low stake context ($\bar{\beta}$)', fontsize=fontsize)
     g.set_xlabels('')
     g.fig.set_facecolor('w')
+    g.fig.text(-0.01,1.05,'B',fontsize=fontsize+10,weight='bold')
     filename_fig_4b = os.path.join(output_path, 'Fig4B.png')
-    g.savefig(filename_fig_4b, facecolor='w', dpi=250)
+    g.savefig(filename_fig_4b, facecolor='w', dpi=300)
 
 
-def make_figure_5(model_mat_fits, grouped_stakes, w1_map_df, output_path):
-    fontsize = 18
+def make_figure_5(model_mat_fits, grouped_stakes, w1_map_df, output_path,exp):
+    fontsize = 14
     _, talking_heads, _ = set_palettes()
     mpl.rcParams['figure.figsize'] = 4.61, 8.11
     fig_5_merge = pd.merge(model_mat_fits, grouped_stakes, on='subid')
@@ -166,7 +179,7 @@ def make_figure_5(model_mat_fits, grouped_stakes, w1_map_df, output_path):
     melted_fig_5_round_2 = melted_fig_5.melt(id_vars=['subid', 'Grouping Model', 'Model Matrix Fit'], var_name='y_var',
                                              value_name='y_val')
 
-    # melted_fig_4_round_2
+
     g = sns.lmplot(data=melted_fig_5_round_2, x='Model Matrix Fit', y='y_val', hue='Grouping Model',
                    col='Grouping Model', palette=talking_heads, row='y_var', sharey='row',
                    row_order=['Points earned in decision-making task', 'w fit'],
@@ -182,13 +195,38 @@ def make_figure_5(model_mat_fits, grouped_stakes, w1_map_df, output_path):
         axes[i, 0].set_yticklabels(axes[i, 0].get_yticks(), fontsize=fontsize)
         for j in range(axes.shape[1]):
             axes[1, j].set_title('')
-            axes[0, j].set_title(titles[j], fontsize=fontsize)
-            axes[1, j].set_xlabel(r'Model Matrix Fit ($\bar{\beta}$)', fontsize=fontsize)
+            axes[0, j].set_title(titles[j], fontsize=fontsize,y=1.1)
+            axes[1, j].set_xlabel(r'Model matrix fit ($\bar{\beta}$)', fontsize=fontsize)
             round_ticks = [int(x) for x in axes[1, j].get_xticks()]
             axes[1, j].set_xticklabels(round_ticks, fontsize=fontsize)
     axes[0, 0].set_ylabel("Points earned", fontsize=fontsize)
     axes[1, 0].set_ylabel("Model-based control parameter (w)", fontsize=fontsize)
-    g.savefig(os.path.join(output_path, 'Fig5.png'), dpi=250)
+       # adding significance 
+
+    if exp == 2:
+    # adding actual correlation values 
+        axes[0,1].text(95,-0.03,'*',ha='center',color='black',fontsize=fontsize+8,weight='bold')
+        axes[0,2].text(95,-0.03,'*',ha='center',color='black',fontsize=fontsize+8,weight='bold')
+        axes[1,1].text(95,0.1,'*',ha='center',color='black',fontsize=fontsize+8,weight='bold')
+        axes[1,2].text(95,0.1,'*',ha='center',color='black',fontsize=fontsize+8,weight='bold')
+        axes[1,0].text(95,0.1,'~',ha='center',color='black',fontsize=fontsize+8,weight='bold')
+        axes[0,1].text(85,-0.04,r'$r=0.32$',ha='center',color='black',fontsize=fontsize)
+        axes[0,2].text(85,-0.04,r'$r=0.45$',ha='center',color='black',fontsize=fontsize)
+        axes[1,0].text(85,0.04,r'$r=-0.14$',ha='center',color='black',fontsize=fontsize)
+        axes[1,1].text(85,0.04,r'$r=0.32$',ha='center',color='black',fontsize=fontsize)
+        axes[1,2].text(85,0.04,r'$r=0.46$',ha='center',color='black',fontsize=fontsize)
+    else:
+        axes[0,1].text(80,-0.04,r'$r=0.34$',ha='center',color='black',fontsize=fontsize)
+        axes[0,2].text(80,-0.04,r'$r=0.36$',ha='center',color='black',fontsize=fontsize)
+        axes[1,1].text(80,0.04,r'$r=0.27$',ha='center',color='black',fontsize=fontsize)
+        axes[1,2].text(80,0.04,r'$r=0.25$',ha='center',color='black',fontsize=fontsize)
+        axes[0,1].text(85,-0.03,'*',ha='center',color='black',fontsize=fontsize+8,weight='bold')
+        axes[0,2].text(85,-0.03,'*',ha='center',color='black',fontsize=fontsize+8,weight='bold')
+        axes[1,1].text(85,0.1,'*',ha='center',color='black',fontsize=fontsize+8,weight='bold')
+        axes[1,2].text(85,0.1,'*',ha='center',color='black',fontsize=fontsize+8,weight='bold')
+    g.fig.text(0.05,0.90,'A',fontsize=fontsize+10,color='black',weight='bold')
+    g.fig.text(0.05,0.45,'B',fontsize=fontsize+10,color='black',weight='bold')
+    g.savefig(os.path.join(output_path, 'Fig5.png'), dpi=300)
 
 
 def make_figure_6(dprime_df, output_path):
@@ -207,13 +245,13 @@ def make_figure_6(dprime_df, output_path):
 
     plt.setp(ax.lines, zorder=100)
     plt.setp(ax.collections, zorder=100, label="")
-    plt.axhline(0, linestyle='--', color='blue', zorder=120)
+    plt.axhline(0, linestyle='--', color='red', zorder=120)
     g.set_xticklabels(["Mismatch d'", "Lure d'"], fontsize=fontsize)
     g.set_xlabels('')
     g.set_ylabels("d' difference score (high vs low stake context)", fontsize=fontsize)
     g.axes[0, 0].set_yticklabels(g.axes[0, 0].get_yticks(), fontsize=fontsize)
     g.fig.set_facecolor('w')
-    g.savefig(os.path.join(output_path, 'Fig6.png'), dpi=250)
+    g.savefig(os.path.join(output_path, 'Fig6.png'), dpi=300)
 
 
 def main():
@@ -239,8 +277,8 @@ def main():
         pca_df = data['pca_df']
         dprime_df = data['dprime_df']
         make_figure_6(dprime_df, output_path)
-    make_figure_4(model_mat_fits, melted_mmf, output_path)
-    make_figure_5(model_mat_fits, grouped_stakes, w1_map_df, output_path)
+    make_figure_4(model_mat_fits, melted_mmf, output_path,exp)
+    make_figure_5(model_mat_fits, grouped_stakes, w1_map_df, output_path,exp)
 
 
 if __name__ == '__main__':
