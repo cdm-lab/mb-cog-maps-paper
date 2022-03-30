@@ -4,6 +4,7 @@ import os
 import numpy as np
 import pandas as pd
 import matplotlib as mpl
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 import matplotlib.pyplot as plt
 import seaborn as sns
 import argparse
@@ -27,7 +28,7 @@ def make_figure_2(slider_dict, output_path):
     empty_label = [''] * 10
     fontsize = 16
     fig, axs = plt.subplots(2, 3, figsize=(10, 6))
-    axs[0, 0].matshow(model_mats[0], interpolation='nearest')
+    im = axs[0, 0].matshow(model_mats[0], interpolation='nearest')
     axs[0, 0].set_title("Visual cooccurrence", fontsize=fontsize)
 
     axs[0, 1].matshow(model_mats[2], interpolation='nearest')
@@ -70,9 +71,24 @@ def make_figure_2(slider_dict, output_path):
     axs[0, 0].set_ylabel('Model matrices', fontsize=fontsize, labelpad=15)
     # axs[1, 2].yaxis.set_label_position("right")
     axs[1, 0].set_ylabel('Example participants', fontsize=fontsize, labelpad=15)
+    fig.text(0.045,0.99,'A',fontsize=fontsize+10,color='black',weight='bold')
+    fig.text(0.355,0.99,'B',fontsize=fontsize+10,color='black',weight='bold')
+    fig.text(0.663,0.99,'C',fontsize=fontsize+10,color='black',weight='bold')
+    fig.text(0.045,0.45,'D',fontsize=fontsize+10,color='black',weight='bold')
+    fig.text(0.355,0.45,'E',fontsize=fontsize+10,color='black',weight='bold')
+    fig.text(0.663,0.45,'F',fontsize=fontsize+10,color='black',weight='bold')
     filename = os.path.join(output_path, 'Fig2.png')
+    axins = inset_axes(
+        [axs[0,2],axs[1,2]],
+        width="5%",
+        height="100%",
+        loc='center right',
+        borderpad = -5
+    )
+    cb = fig.colorbar(im, cax=axins)
+    cb.set_label('Similarity', labelpad=-50,fontsize=fontsize-2)
     fig.tight_layout()
-    fig.savefig(filename, dpi=250, transparent=True)
+    fig.savefig(filename, dpi=250, transparent=True, bbox_inches='tight')
 
 
 def make_figure_3(pca_df, output_path):
@@ -277,6 +293,7 @@ def main():
         pca_df = data['pca_df']
         dprime_df = data['dprime_df']
         make_figure_6(dprime_df, output_path)
+        make_figure_3(pca_df, output_path)
     make_figure_4(model_mat_fits, melted_mmf, output_path,exp)
     make_figure_5(model_mat_fits, grouped_stakes, w1_map_df, output_path,exp)
 
