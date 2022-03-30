@@ -67,7 +67,9 @@ def create_task_lists(N, rewards, stakes, high_arm):
     return rews.astype(int), state_and_stake.astype(int)
 
 
-def MBMF_deterministic_1choice_rew_sim(params, rews, states, stakes, final, high_arm, w_count, coin_flip):
+def MBMF_deterministic_1choice_rew_sim(
+    params, rews, states, stakes, final, high_arm, w_count, coin_flip
+):
     """
     Mixed model-based / model-free simulation code for a task with
     deterministic transitions, one choice at the second level, and points for
@@ -163,9 +165,16 @@ def MBMF_deterministic_1choice_rew_sim(params, rews, states, stakes, final, high
         else:
             w = w_lo_low_arm
         # Q = w*Qmb + (1-w)*np.atleast_2d(Qmf[s1-1,:]).T         # mixing model based and model free
-        Q = w * Qmb + (1 - w) * np.atleast_2d(Qmf[s1 - 1, :]).T + st * np.atleast_2d(M[s1 - 1, :]).T + respst * R
+        Q = (
+            w * Qmb
+            + (1 - w) * np.atleast_2d(Qmf[s1 - 1, :]).T
+            + st * np.atleast_2d(M[s1 - 1, :]).T
+            + respst * R
+        )
         if coin_flip is None:
-            if np.random.uniform(0, 1) > np.exp(b * Q[1]) / sum(np.exp(b * Q)):  # make choice using softmax
+            if np.random.uniform(0, 1) > np.exp(b * Q[1]) / sum(
+                np.exp(b * Q)
+            ):  # make choice using softmax
                 a = 1
             else:
                 a = 2
@@ -188,20 +197,31 @@ def MBMF_deterministic_1choice_rew_sim(params, rews, states, stakes, final, high
         if not final:  # updating transition matrix
             spe = 1 - Tm[s1 - 1, :][s2 - 1, a - 1]
             Tm[s1 - 1][s2 - 1, a - 1] = Tm[s1 - 1][s2 - 1, a - 1] + eta * spe
-            Tm[s1 - 1][abs(s2 - 3) - 1, a - 1] = Tm[s1 - 1][abs(s2 - 3) - 1, a - 1] * (1 - eta)
+            Tm[s1 - 1][abs(s2 - 3) - 1, a - 1] = Tm[s1 - 1][abs(s2 - 3) - 1, a - 1] * (
+                1 - eta
+            )
 
             virtual_spe = 1 - Tm[s1 - 1][abs(s2 - 3) - 1, abs(a - 3) - 1]
-            Tm[s1 - 1][abs(s2 - 3) - 1, abs(a - 3) - 1] = Tm[s1 - 1][abs(s2 - 3) - 1, abs(a - 3) - 1] + (
-                    kappa) * virtual_spe
-            Tm[s1 - 1][s2 - 1, abs(a - 3) - 1] = Tm[s1 - 1][s2 - 1, abs(a - 3) - 1] * (1 - (kappa))
+            Tm[s1 - 1][abs(s2 - 3) - 1, abs(a - 3) - 1] = (
+                Tm[s1 - 1][abs(s2 - 3) - 1, abs(a - 3) - 1] + (kappa) * virtual_spe
+            )
+            Tm[s1 - 1][s2 - 1, abs(a - 3) - 1] = Tm[s1 - 1][s2 - 1, abs(a - 3) - 1] * (
+                1 - (kappa)
+            )
 
-        dtQ[0] = Q2[s2 - 1] - Qmf[s1 - 1, a - 1]  # backup with actual choice (i.e., sarsa)
-        Qmf[s1 - 1, a - 1] = Qmf[s1 - 1, a - 1] + lr * dtQ[0]  # update TD value function
+        dtQ[0] = (
+            Q2[s2 - 1] - Qmf[s1 - 1, a - 1]
+        )  # backup with actual choice (i.e., sarsa)
+        Qmf[s1 - 1, a - 1] = (
+            Qmf[s1 - 1, a - 1] + lr * dtQ[0]
+        )  # update TD value function
 
         dtQ[1] = rews[t, s2 - 1] - Q2[s2 - 1]  # prediction error (2nd choice)
 
         Q2[s2 - 1] = Q2[s2 - 1] + lr * dtQ[1]  # update TD value function
-        Qmf[s1 - 1, a - 1] = Qmf[s1 - 1, a - 1] + lamb * lr * dtQ[1]  # eligibility trace
+        Qmf[s1 - 1, a - 1] = (
+            Qmf[s1 - 1, a - 1] + lamb * lr * dtQ[1]
+        )  # eligibility trace
 
         actions[t] = a
         rewards[t] = rews[t, s2 - 1]
