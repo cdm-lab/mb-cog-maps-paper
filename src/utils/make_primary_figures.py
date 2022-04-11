@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import argparse
 
-mpl.rcParams["figure.dpi"] = 200
+mpl.rcParams["figure.dpi"] = 300
 
 
 def set_palettes():
@@ -78,18 +78,20 @@ def make_figure_2(slider_dict, output_path):
     fig.text(0.045, 0.45, "D", fontsize=fontsize + 10, color="black", weight="bold")
     fig.text(0.355, 0.45, "E", fontsize=fontsize + 10, color="black", weight="bold")
     fig.text(0.663, 0.45, "F", fontsize=fontsize + 10, color="black", weight="bold")
-    filename = os.path.join(output_path, "Fig2.png")
-    axins = inset_axes(
-        [axs[0, 2], axs[1, 2]],
-        width="5%",
-        height="100%",
-        loc="center right",
-        borderpad=-5,
-    )
-    cb = fig.colorbar(im, cax=axins)
-    cb.set_label("Similarity", labelpad=-50, fontsize=fontsize - 2)
+    filename = os.path.join(output_path, "Fig2.pdf")
+    # axins = inset_axes(
+    #     axs[1, 2], width="5%", height="100%", loc="center right", borderpad=-5,
+    # )
+    [[x00, y00], [x01, y01]] = axs[0, 2].get_position().get_points()
+    [[x10, y10], [x11, y11]] = axs[1, 2].get_position().get_points()
+    pad = 0.14
+    width = 0.02
+    cbar_ax = fig.add_axes([x11 + pad, y10, width, y01 - y10])
+    axcb = fig.colorbar(im, cax=cbar_ax)
+    # cb = fig.colorbar(im, ax=[axs[0, 2], axs[1, 2]], pad=8)
+    axcb.set_label("Similarity", labelpad=-55, fontsize=fontsize - 2)
     fig.tight_layout()
-    fig.savefig(filename, dpi=250, transparent=True, bbox_inches="tight")
+    fig.savefig(filename, dpi=300, transparent=True, bbox_inches="tight")
 
 
 def make_figure_3(pca_df, output_path):
@@ -126,8 +128,8 @@ def make_figure_3(pca_df, output_path):
     ax2.axis("off")
     ax3.axis("off")
     fig.tight_layout()
-    filename_fig_3 = os.path.join(output_path, "Fig3.png")
-    fig.savefig(filename_fig_3, dpi=200, bbox_inches="tight")
+    filename_fig_3 = os.path.join(output_path, "Fig3.pdf")
+    fig.savefig(filename_fig_3, dpi=300, bbox_inches="tight")
 
 
 def make_figure_4(model_mat_fits, melted_mmf, output_path, exp):
@@ -201,7 +203,7 @@ def make_figure_4(model_mat_fits, melted_mmf, output_path, exp):
     g.set_ylabels(r"Model matrix fit ($\bar{\beta}$)", fontsize=fontsize)
     g.set_xlabels("")
     g.fig.set_facecolor("w")
-    filename_fig_4a = os.path.join(output_path, "Fig4A.png")
+    filename_fig_4a = os.path.join(output_path, "Fig4A.pdf")
     g.fig.text(0, 1.05, "A", fontsize=fontsize + 10, weight="bold")
     g.savefig(filename_fig_4a, facecolor="w", dpi=300)
     # making figure 4B
@@ -244,7 +246,7 @@ def make_figure_4(model_mat_fits, melted_mmf, output_path, exp):
     g.set_xlabels("")
     g.fig.set_facecolor("w")
     g.fig.text(-0.01, 1.05, "B", fontsize=fontsize + 10, weight="bold")
-    filename_fig_4b = os.path.join(output_path, "Fig4B.png")
+    filename_fig_4b = os.path.join(output_path, "Fig4B.pdf")
     g.savefig(filename_fig_4b, facecolor="w", dpi=300)
 
 
@@ -427,7 +429,7 @@ def make_figure_5(model_mat_fits, grouped_stakes, w1_map_df, output_path, exp):
         )
     g.fig.text(0.05, 0.90, "A", fontsize=fontsize + 10, color="black", weight="bold")
     g.fig.text(0.05, 0.45, "B", fontsize=fontsize + 10, color="black", weight="bold")
-    g.savefig(os.path.join(output_path, "Fig5.png"), dpi=300)
+    g.savefig(os.path.join(output_path, "Fig5.pdf"), dpi=300)
 
 
 def make_figure_6(dprime_df, output_path):
@@ -467,8 +469,11 @@ def make_figure_6(dprime_df, output_path):
     g.set_xlabels("")
     g.set_ylabels("d' difference score (high vs low stake context)", fontsize=fontsize)
     g.axes[0, 0].set_yticklabels(g.axes[0, 0].get_yticks(), fontsize=fontsize)
+    g.axes[0, 0].text(
+        0, 3.5, "*", ha="center", color="black", fontsize=fontsize + 8, weight="bold",
+    )
     g.fig.set_facecolor("w")
-    g.savefig(os.path.join(output_path, "Fig6.png"), dpi=300)
+    g.savefig(os.path.join(output_path, "Fig6.pdf"), dpi=300)
 
 
 def main():
