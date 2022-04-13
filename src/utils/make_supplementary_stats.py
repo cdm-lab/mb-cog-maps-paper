@@ -6,12 +6,15 @@ import pingouin as pg
 
 import src.utils.dataset_utils as dataset_utils
 
-# TODO add recovery correlations
-# TODO add ek1 parameter correlations
-# TODO add stakexarm ANOVA
 
+# TODO add ek1 parameter correlations
 
 def w1_points_rt_corr(w1_map_df, grouped_stakes):
+    """
+    Correlation of model-based control parameter, baseline corrected points earned, and response time
+    :param w1_map_df: dataframe containing the reinforcement learning model parameters for each participant
+    :param grouped_stakes: dataframe containing how well each participant did in terms of baseline corrected points earned
+    """
     melted_1w_map = w1_map_df[["subid", "w low stakes low arm fit"]].rename(
         columns={"w low stakes low arm fit": "w fit"}
     )
@@ -27,6 +30,11 @@ def w1_points_rt_corr(w1_map_df, grouped_stakes):
 
 
 def dprime_corr(w1_map_df, dprime_df):
+    """
+    correlation of d' from memory task with the reinforcement learning model w parameter
+    :param w1_map_df: dataframe containing the reinforcement learning model parameters for each participant
+    :param dprime_df: dataframe containing memory task performance for each participant
+    """
     melted_1w_map = w1_map_df[["subid", "w low stakes low arm fit"]].rename(
         columns={"w low stakes low arm fit": "w fit"}
     )
@@ -47,10 +55,14 @@ def dprime_corr(w1_map_df, dprime_df):
     )
     print(
         pcor.round(4).iloc[0:4]
-    )  # only printing correlations with w fit because we don't care about dprime correlations with each other
+    )
 
 
 def model_mat_fits_corr(model_mat_fits):
+    """
+    Generates correlation of the different model matrix fit beta coefficients with each other
+    :param model_mat_fits: dataframe containing model matrix fits from the multiple regression from each participant
+    """
     pcor = pg.pairwise_corr(
         model_mat_fits,
         columns=[

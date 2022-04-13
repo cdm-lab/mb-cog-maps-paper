@@ -78,7 +78,7 @@ def apply_priors(params, model_func_params):
 
 
 def MB_MF_rllik_learn_mat_arms(
-    params, sub_df, stakes=4, final=True, kappa_equivalent=False
+    params, sub_df, stakes='4', final=True, kappa_equivalent=False
 ):
     """
     This function fits a log likelihood for model based versus model free control weights based on the SARSA TD learning algo

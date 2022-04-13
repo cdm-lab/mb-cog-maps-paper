@@ -11,7 +11,8 @@ create_state2_high_arm_sorted_sliders(sub_dict,subnum,df)
 """
 
 import numpy as np
-
+import pandas as pd
+pd.options.mode.chained_assignment = None
 
 def create_sub_dict(subnum, df):
     """
@@ -113,70 +114,6 @@ def create_fit_df(subnum, df):
     sub_df.loc[:, "points"] = sub_df["points"].apply(lambda x: x / 9)
     # sub_df = sub_df.drop(columns={'index'})
     return sub_df
-
-
-def create_state1_sorted_sliders(sub_dict, subnum, df):
-    presliders = df[df["prepost"] == "pre"]
-    postsliders = df[df["prepost"] == "post"]
-    presliders = presliders.drop_duplicates()
-    object_ordered_list = []
-    object_ordered_list.append(list(sub_dict[subnum]["reward_1"]))
-    rew1 = sub_dict[subnum]["reward_1_object"]
-    object_ordered_list.append([rew1])
-    object_ordered_list.append(list(sub_dict[subnum]["reward_2"]))
-    rew2 = sub_dict[subnum]["reward_2_object"]
-    object_ordered_list.append([rew2])
-    flat_list = [item for sublist in object_ordered_list for item in sublist]
-
-    pre_sorted_identity = np.eye(10) * 100
-    for i in range(len(presliders)):
-        object_1 = presliders.iloc[i]["stim1"][8:-4]
-        object_2 = presliders.iloc[i]["stim2"][8:-4]
-        idx1 = flat_list.index(object_1)
-        idx2 = flat_list.index(object_2)
-        pre_sorted_identity[idx1, idx2] = presliders["response"].iloc[i]
-    post_sorted_identity = np.eye(10) * 100
-    for i in range(len(postsliders)):
-        object_1 = postsliders.iloc[i]["stim1"][8:-4]
-        object_2 = postsliders.iloc[i]["stim2"][8:-4]
-        idx1 = flat_list.index(object_1)
-        idx2 = flat_list.index(object_2)
-        post_sorted_identity[idx1, idx2] = postsliders["response"].iloc[i]
-    # adding the upper lower triangle averaging for pre_sorted
-    lower = np.tril_indices(10)
-    averaged = (pre_sorted_identity[lower] + pre_sorted_identity.T[lower]) / 2
-    averaged_no_nan = averaged.copy()
-    for i in range(len(averaged)):
-        if np.isnan(averaged[i]):
-            if np.isnan(pre_sorted_identity[lower][i]) & ~np.isnan(
-                pre_sorted_identity.T[lower][i]
-            ):
-                averaged_no_nan[i] = pre_sorted_identity.T[lower][i]
-            elif not np.isnan(pre_sorted_identity[lower][i]):
-                averaged_no_nan[i] = pre_sorted_identity[lower][i]
-            else:
-                averaged_no_nan[i] = 0
-    x = np.eye(10) * 100
-    x[lower] = averaged_no_nan
-    x.T[lower] = averaged_no_nan
-    # adding the upper lower triangle for post_sorted
-    averaged = (post_sorted_identity[lower] + post_sorted_identity.T[lower]) / 2
-    averaged_no_nan = averaged.copy()
-    for i in range(len(averaged)):
-        if np.isnan(averaged[i]):
-            if np.isnan(post_sorted_identity[lower][i]) & ~np.isnan(
-                post_sorted_identity.T[lower][i]
-            ):
-                averaged_no_nan[i] = post_sorted_identity.T[lower][i]
-            elif not np.isnan(post_sorted_identity[lower][i]):
-                averaged_no_nan[i] = post_sorted_identity[lower][i]
-            else:
-                averaged_no_nan[i] = 0
-    y = np.eye(10) * 100
-    y[lower] = averaged_no_nan
-    y.T[lower] = averaged_no_nan
-
-    return [x, y]
 
 
 def create_stake_sorted_sliders(sub_dict, subnum, df):

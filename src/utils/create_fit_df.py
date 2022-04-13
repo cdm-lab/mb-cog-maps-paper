@@ -6,6 +6,13 @@ import argparse
 
 
 def create_fit_df(subjects, column_names, input_path):
+    """
+    Compiles subject's individual reinforcement learning model fit pickle files into a dataframe for use in further analysis
+    :param subjects: which subjects you would like to include
+    :param column_names: which column names correspond to the different parameter values
+    :param input_path: where to look for the subject reinforcement learning model fit files
+    :return: returns the dataframe containing subject's reinforcement learning model fits
+    """
     fit_df = pd.DataFrame()
     for sub in subjects:
         sub_file = f"{sub}*.pickle"

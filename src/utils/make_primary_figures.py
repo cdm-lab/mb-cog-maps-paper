@@ -13,6 +13,10 @@ mpl.rcParams["figure.dpi"] = 300
 
 
 def set_palettes():
+    """
+    Code to set up the palettes for use in other figures
+    :return: returns a tuple with 3 palettes for use in the other figures (most commonly talking_heads palette)
+    """
     w4_palette = ["#9e9ac8", "#756bb1", "#fb6a4a", "#de2d26"]
     talking_heads = ["#6095ca", "#fbb91e", "#6aaf75"]
     # mem_palette = ['#e6508b', '#70AF41']
@@ -21,6 +25,11 @@ def set_palettes():
 
 
 def make_figure_2(slider_dict, output_path):
+    """
+    Makes the 2nd figure which is the comparison of model matrices and example participants
+    :param slider_dict: takes in the slider dictionary where the example participants are stored
+    :param output_path: where to save the figure pdf
+    """
     vc_sub = "AAURS65ZO4SXC"
     dr_sub = "ATKNH6OR2G11O"
     ir_sub = "AUFUUD4WG9CVO"
@@ -37,7 +46,7 @@ def make_figure_2(slider_dict, output_path):
     axs[0, 2].matshow(model_mats[3], interpolation="nearest")
     axs[0, 2].set_title("Indirect item association", fontsize=fontsize)
 
-    # Setting subject stuff
+    # Setting participant specific portion
     vc_post_minus_pre = slider_dict[vc_sub][1][1] - slider_dict[vc_sub][1][0]
     np.fill_diagonal(vc_post_minus_pre, 100)
     axs[1, 0].matshow(vc_post_minus_pre, interpolation="nearest")
@@ -69,15 +78,15 @@ def make_figure_2(slider_dict, output_path):
             axs[i, j].set_xticklabels(empty_label)
 
     # axs[0, 2].yaxis.set_label_position("right")
-    axs[0, 0].set_ylabel("Model matrices", fontsize=fontsize, labelpad=15)
+    axs[0, 0].set_ylabel("Model matrices", fontsize=fontsize, labelpad=30)
     # axs[1, 2].yaxis.set_label_position("right")
-    axs[1, 0].set_ylabel("Example participants", fontsize=fontsize, labelpad=15)
-    fig.text(0.045, 0.99, "A", fontsize=fontsize + 10, color="black", weight="bold")
-    fig.text(0.355, 0.99, "B", fontsize=fontsize + 10, color="black", weight="bold")
-    fig.text(0.663, 0.99, "C", fontsize=fontsize + 10, color="black", weight="bold")
-    fig.text(0.045, 0.45, "D", fontsize=fontsize + 10, color="black", weight="bold")
-    fig.text(0.355, 0.45, "E", fontsize=fontsize + 10, color="black", weight="bold")
-    fig.text(0.663, 0.45, "F", fontsize=fontsize + 10, color="black", weight="bold")
+    axs[1, 0].set_ylabel("Example participants", fontsize=fontsize, labelpad=30)
+    fig.text(0.05, 0.99, "A", fontsize=fontsize + 10, color="black", weight="bold")
+    fig.text(0.37, 0.99, "B", fontsize=fontsize + 10, color="black", weight="bold")
+    fig.text(0.67, 0.99, "C", fontsize=fontsize + 10, color="black", weight="bold")
+    fig.text(0.05, 0.45, "D", fontsize=fontsize + 10, color="black", weight="bold")
+    fig.text(0.37, 0.45, "E", fontsize=fontsize + 10, color="black", weight="bold")
+    fig.text(0.67, 0.45, "F", fontsize=fontsize + 10, color="black", weight="bold")
     filename = os.path.join(output_path, "Fig2.pdf")
     # axins = inset_axes(
     #     axs[1, 2], width="5%", height="100%", loc="center right", borderpad=-5,
@@ -95,6 +104,11 @@ def make_figure_2(slider_dict, output_path):
 
 
 def make_figure_3(pca_df, output_path):
+    """
+    Generates figure 3 which is the similarity matrices for the principle component dimensions
+    :param pca_df: dataframe that contains the pca analysis results
+    :param output_path: where to save figure pdf
+    """
     lower_indices = np.tril_indices(10, -1, 10)
     fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(16, 16))
     fontsize = 24
@@ -133,6 +147,13 @@ def make_figure_3(pca_df, output_path):
 
 
 def make_figure_4(model_mat_fits, melted_mmf, output_path, exp):
+    """
+    Makes the figure of beta coefficient fits for the multiple regressions for the model matrix fits
+    :param model_mat_fits: dataframe containing model matrix fits from the multiple regression from each participant
+    :param melted_mmf: dataframe of model matrix fits for the upper - lower beta values
+    :param output_path: where to save the figure pdf
+    :param exp: which experiment you want (1 for initial, 2 for primary results in paper)
+    """
     y, talking_heads, _ = set_palettes()
     fontsize = 14
     height = 5.4
@@ -251,6 +272,14 @@ def make_figure_4(model_mat_fits, melted_mmf, output_path, exp):
 
 
 def make_figure_5(model_mat_fits, grouped_stakes, w1_map_df, output_path, exp):
+    """
+    Generates the correlation figures for model matrix fits, points earned in the two step task, and the model-based control parameter
+    :param model_mat_fits: dataframe containing model matrix fits from the multiple regression from each participant
+    :param grouped_stakes: dataframe containing how well each participant did in terms of baseline corrected points earned
+    :param w1_map_df: dataframe containing the reinforcement learning model parameters for each participant
+    :param output_path: where to save the figure pdf
+    :param exp: which experiment you want (1 for initial, 2 for primary results in paper)
+    """
     fontsize = 14
     _, talking_heads, _ = set_palettes()
     mpl.rcParams["figure.figsize"] = 4.61, 8.11
@@ -433,6 +462,11 @@ def make_figure_5(model_mat_fits, grouped_stakes, w1_map_df, output_path, exp):
 
 
 def make_figure_6(dprime_df, output_path):
+    """
+    Makes the memory figure
+    :param dprime_df: dataframe containing memory task performance for each participant
+    :param output_path: where to save the figure pdf
+    """
     _, _, mem = set_palettes()
     stat_dprime_df = dprime_df.groupby(["subid"]).first().reset_index()
     stat_dprime_df["lbst_diff_score"] = (
@@ -524,5 +558,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-# TODO figure out the sizing and labelling of figures with labels (i.e. A B C)

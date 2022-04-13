@@ -32,6 +32,13 @@ def filter_df(input_df, subject_list):
 
 
 def filter_dict(input_path, output_path, subject_list):
+    """
+    Returns a filtered version of the input slider_dict where subjects that aren't in the list are removed
+    :param input_path: where to load the slider_dicts.pickle file from
+    :param output_path: where to save out the filtered slider_dicts.pickle file to
+    :param subject_list: which subjects to use
+    :return: returns the filtered_dict which contains only subjects you want
+    """
     pickle_path = os.path.join(input_path, "slider_dicts.pickle")
     with open(pickle_path, "rb") as handle:
         input_dict = pickle.load(handle)
@@ -64,6 +71,13 @@ def make_sub_dicts(input_path):
 
 
 def make_good_subjects_list(input_path, output_path, exp_num=2):
+    """
+    Generates a list of "Good subjects" by going through all of the pre-registered exclusion criteria
+    :param input_path: where to load in the dataframes from
+    :param output_path: where to save the subject_list.txt file
+    :param exp_num: which experiment you are using (default is 2)
+    :return: the list of "good subjects"
+    """
     stake_df = pd.read_csv(os.path.join(input_path, "memory_2step_stake_data.csv"))
     slider_df = pd.read_csv(os.path.join(input_path, "memory_2step_slider_data.csv"))
     slider_df = slider_df.drop_duplicates()
@@ -147,6 +161,14 @@ def make_good_subjects_list(input_path, output_path, exp_num=2):
 
 
 def model_fit_threshold(input_path, output_path, subjects, exp_num):
+    """
+    Uses model_fit indices to filter out participants that engaged in random action selection
+    :param input_path: where to look for the w1_map_df file
+    :param output_path: where to save out the post-threshold subject file
+    :param subjects: which subjects to check for threshold
+    :param exp_num: which experiment you are using
+    :return: the list of "good subjects"
+    """
     w1_map_df = pd.read_csv(os.path.join(input_path, "w1_map_df.csv"))
     stringify(w1_map_df)
     bad_subjects = []
@@ -218,6 +240,12 @@ def make_overall_stake_df(input_path, output_path, subjects=None):
 
 
 def make_slider_df(slider_dict, output_path, hvl=False):
+    """
+    Fits multiple linear regression for the subject behRSA data against the a-priori defined model matrices
+    :param slider_dict: subject behRSA responses
+    :param output_path: where to save out the model_mat_fits dataframe
+    :param hvl: whether you want high-versus-low stake comparison (default is False)
+    """
     coef_vals = {}
     if not hvl:
         model_mats = utils.create_model_matrices()
@@ -320,6 +348,13 @@ def make_slider_df(slider_dict, output_path, hvl=False):
 
 
 def make_slider_dict(input_path, output_path, subjects=None):
+    """
+    Generates the behRSA data dictionary for use in further statistical and visualization functions
+    :param input_path: where to load in the dataframe for behRSA ratings
+    :param output_path: where to save the behRSA data dictionary
+    :param subjects: which subjects you would like to run
+    :return: returns behRSA data dictionary
+    """
     slider_df = pd.read_csv(os.path.join(input_path, "memory_2step_slider_data.csv"))
     slider_df = slider_df.drop_duplicates()
     stringify(slider_df)
@@ -472,6 +507,13 @@ def make_memory_df(input_path, output_path, subjects=None, exp_num=2):
 
 
 def make_pca_df(input_path, output_path, subjects=None):
+    """
+    Generates principal component analysis dataframe and saves it for use in further visualization
+    :param input_path: where to look for the behRSA data dictionary
+    :param output_path: where to save the pca dataframe file
+    :param subjects: which subjects to include in the dataframe
+    :return: the principal component analysis dataframe
+    """
     lower_indices = np.tril_indices(10, -1, 10)  # m, k n
     slider_pickle_in = os.path.join(input_path, "slider_dicts.pickle")
     slider_dict = pickle.load(open(slider_pickle_in, "rb"))
@@ -492,6 +534,11 @@ def make_pca_df(input_path, output_path, subjects=None):
 
 
 def load_exp_data(data_path):
+    """
+    Helper function to load in data for other statistical and visualization portions later on
+    :param data_path: Where to look for the data files
+    :return: returns a dictionary with different data portions
+    """
     # loading slider data
     slider_dicts_path = os.path.join(data_path, "slider_dicts.pickle")
     assert os.path.exists(slider_dicts_path), f"{slider_dicts_path} does not exist!"
