@@ -50,6 +50,6 @@ Here we describe two options for recreating our computational environment Docker
 2. Once anaconda is installed run `conda init` in the terminal
 3. Navigate to the repository on your computer and run `conda create -n mb-cog-maps --file requirements.txt`
 4. Once the environment is created run `conda activate mb-cog-maps` and then `jupyter notebook`
-5. Launch any given notebook under scripts/notebooks folder: (01-data-cleaning.ipynb, 02-model-fitting.ipynb, 03-paper-analyses.ipynb, 04-paper-figures.ipynb)
+5. Launch any given notebook under scripts/notebooks folder: (01-data-cleaning.ipynb, 02-model-fitting.ipynb, 03-primary-analyses.ipynb, 04-paper-figures.ipynb)
 
 Please feel free to send me an email at a.b.karagoz@wustl.edu or post an issue if you are having difficulties running any component of this code.

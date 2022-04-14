@@ -223,7 +223,7 @@ def model_fitting_descriptive_stats(w1_map_df):
                 "kappa fit",
                 "LL",
             ]
-        ].describe()
+        ].mean()
     )
     print("")
 

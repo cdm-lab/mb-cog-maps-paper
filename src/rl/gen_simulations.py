@@ -18,7 +18,7 @@ def simulate_agent(
     :param agent_num: the number of the agent
     :param final: whether or not to do the final transition matrix or learn it with eta and kappa
     :param coin_flip: whether to perform random action or action according the decision rule
-    :return: ouputs a .pkl file containing the settings and data.csv containing the simulated data for model fitting
+    :return: outputs a .pkl file containing the settings and data.csv containing the simulated data for model fitting
     """
     rewards = (0, 2)  # mean and standard deviation of reward
     N = 256
@@ -40,7 +40,7 @@ def simulate_agent(
 
     model_df = (
         pd.DataFrame()
-    )  # kind of janky code to turn it into a dataframe (come back and fix)
+    )  
     model_df["state1"] = states_traversed[:, 0]
     model_df["state2"] = states_traversed[:, 1]
     model_df["stake"] = state_and_stake[:, 1]
@@ -55,7 +55,7 @@ def simulate_agent(
     results = [params, w_count]
     model_df.to_csv(filename + ".csv")
     pickle.dump(results, open(filename + ".pkl", "wb"))
-    return ()
+    return results
 
 
 def main():
