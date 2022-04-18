@@ -7,11 +7,13 @@ jspych/plugins/*.js
 memory-two-step.sublime-project
 memory-two-step.sublime-workspace
 **.png
-**.csv
-**.pickle
-**.pkl
+# **.csv
+# **.pickle
+# **.pkl
 **.jpg
 **.xlsx
 /utils/.ipynb_checkpoints/
 **.pyc
 **.idea
+*checkpoint*
+models/*
