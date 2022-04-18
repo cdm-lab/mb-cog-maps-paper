@@ -87,7 +87,7 @@ def make_figure_2(slider_dict, output_path):
     fig.text(0.05, 0.45, "D", fontsize=fontsize + 10, color="black", weight="bold")
     fig.text(0.37, 0.45, "E", fontsize=fontsize + 10, color="black", weight="bold")
     fig.text(0.67, 0.45, "F", fontsize=fontsize + 10, color="black", weight="bold")
-    filename = os.path.join(output_path, "Fig2.pdf")
+    
     # axins = inset_axes(
     #     axs[1, 2], width="5%", height="100%", loc="center right", borderpad=-5,
     # )
@@ -100,53 +100,13 @@ def make_figure_2(slider_dict, output_path):
     # cb = fig.colorbar(im, ax=[axs[0, 2], axs[1, 2]], pad=8)
     axcb.set_label("Similarity", labelpad=-55, fontsize=fontsize - 2)
     fig.tight_layout()
-    fig.savefig(filename, dpi=300, transparent=True, bbox_inches="tight")
+    if output_path:
+        filename = os.path.join(output_path, "Fig2.pdf")
+        fig.savefig(filename, dpi=300, transparent=True, bbox_inches="tight")
+    return fig
 
 
-def make_figure_3(pca_df, output_path):
-    """
-    Generates figure 3 which is the similarity matrices for the principle component dimensions
-    :param pca_df: dataframe that contains the pca analysis results
-    :param output_path: where to save figure pdf
-    """
-    lower_indices = np.tril_indices(10, -1, 10)
-    fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(16, 16))
-    fontsize = 24
-    # fig.suptitle('pre versus post, grouped by second stage')
-    norm_mat = np.zeros((10, 10))
-    norm_mat[lower_indices] = pca_df["pc_1"].values
-    norm_mat = np.tril(norm_mat) + np.triu(norm_mat.T, 1)
-
-    norm_mat2 = np.zeros((10, 10))
-    norm_mat2[lower_indices] = pca_df["pc_2"].values
-    norm_mat2 = np.tril(norm_mat2) + np.triu(norm_mat2.T, 1)
-
-    norm_mat3 = np.zeros((10, 10))
-    norm_mat3[lower_indices] = pca_df["pc_3"].values
-    norm_mat3 = np.tril(norm_mat3) + np.triu(norm_mat3.T, 1)
-
-    cax = ax1.matshow(norm_mat, interpolation="nearest")
-    ax1.set_title("Principal component 1", fontsize=fontsize)
-    cax2 = ax2.matshow(norm_mat2, interpolation="nearest")
-    ax2.set_title("Principal component 2", fontsize=fontsize)
-    cax3 = ax3.matshow(norm_mat3, interpolation="nearest")
-    ax3.set_title("Principal component 3", fontsize=fontsize)
-    fig.set_facecolor("w")
-    cb1 = fig.colorbar(cax, ax=ax1, fraction=0.046)
-    cb2 = fig.colorbar(cax2, ax=ax2, fraction=0.046)
-    cb3 = fig.colorbar(cax3, ax=ax3, fraction=0.046)
-    for i in [cb1, cb2, cb3]:
-        for t in i.ax.get_yticklabels():
-            t.set_fontsize(fontsize)
-    ax1.axis("off")
-    ax2.axis("off")
-    ax3.axis("off")
-    fig.tight_layout()
-    filename_fig_3 = os.path.join(output_path, "Fig3.pdf")
-    fig.savefig(filename_fig_3, dpi=300, bbox_inches="tight")
-
-
-def make_figure_4(model_mat_fits, melted_mmf, output_path, exp):
+def make_figure_3(model_mat_fits, melted_mmf, output_path, exp):
     """
     Makes the figure of beta coefficient fits for the multiple regressions for the model matrix fits
     :param model_mat_fits: dataframe containing model matrix fits from the multiple regression from each participant
@@ -160,7 +120,7 @@ def make_figure_4(model_mat_fits, melted_mmf, output_path, exp):
     model_melt = model_mat_fits.melt(
         id_vars=["subid", "high_arm"], var_name="state", value_name="coef"
     )
-    # making figure 4A
+    # making figure 3A
     g = sns.catplot(
         data=model_melt,
         x="state",
@@ -224,11 +184,12 @@ def make_figure_4(model_mat_fits, melted_mmf, output_path, exp):
     g.set_ylabels(r"Model matrix fit ($\bar{\beta}$)", fontsize=fontsize)
     g.set_xlabels("")
     g.fig.set_facecolor("w")
-    filename_fig_4a = os.path.join(output_path, "Fig4A.pdf")
     g.fig.text(0, 1.05, "A", fontsize=fontsize + 10, weight="bold")
-    g.savefig(filename_fig_4a, facecolor="w", dpi=300)
-    # making figure 4B
-    g = sns.catplot(
+    if output_path:
+        filename_fig_3a = os.path.join(output_path, "Fig3A.pdf")
+        g.savefig(filename_fig_3a, facecolor="w", dpi=300)
+    # making figure 3B
+    g2 = sns.catplot(
         data=melted_mmf,
         x="coef",
         y="value",
@@ -257,18 +218,64 @@ def make_figure_4(model_mat_fits, melted_mmf, output_path, exp):
         plt.text(
             2, 93, "*", ha="center", color="black", fontsize=fontsize + 6, weight="bold"
         )
-    g.set_xticklabels(custom_label, rotation=30, fontsize=fontsize)
+    g2.set_xticklabels(custom_label, rotation=30, fontsize=fontsize)
     round_ticks = [int(x) for x in g.axes[0, 0].get_yticks()]
-    g.set_yticklabels(round_ticks, fontsize=fontsize)
-    g.set_ylabels(
+    g2.set_yticklabels(round_ticks, fontsize=fontsize)
+    g2.set_ylabels(
         r"High stake context ($\bar{\beta}$) - Low stake context ($\bar{\beta}$)",
         fontsize=fontsize,
     )
-    g.set_xlabels("")
-    g.fig.set_facecolor("w")
-    g.fig.text(-0.01, 1.05, "B", fontsize=fontsize + 10, weight="bold")
-    filename_fig_4b = os.path.join(output_path, "Fig4B.pdf")
-    g.savefig(filename_fig_4b, facecolor="w", dpi=300)
+    g2.set_xlabels("")
+    g2.fig.set_facecolor("w")
+    g2.fig.text(-0.01, 1.05, "B", fontsize=fontsize + 10, weight="bold")
+    if output_path:
+        filename_fig_3b = os.path.join(output_path, "Fig3B.pdf")
+        g2.savefig(filename_fig_3b, facecolor="w", dpi=300)
+    return g, g2
+
+def make_figure_4(pca_df, output_path):
+    """
+    Generates figure 3 which is the similarity matrices for the principle component dimensions
+    :param pca_df: dataframe that contains the pca analysis results
+    :param output_path: where to save figure pdf
+    """
+    lower_indices = np.tril_indices(10, -1, 10)
+    fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(16, 16))
+    fontsize = 24
+    # fig.suptitle('pre versus post, grouped by second stage')
+    norm_mat = np.zeros((10, 10))
+    norm_mat[lower_indices] = pca_df["pc_1"].values
+    norm_mat = np.tril(norm_mat) + np.triu(norm_mat.T, 1)
+
+    norm_mat2 = np.zeros((10, 10))
+    norm_mat2[lower_indices] = pca_df["pc_2"].values
+    norm_mat2 = np.tril(norm_mat2) + np.triu(norm_mat2.T, 1)
+
+    norm_mat3 = np.zeros((10, 10))
+    norm_mat3[lower_indices] = pca_df["pc_3"].values
+    norm_mat3 = np.tril(norm_mat3) + np.triu(norm_mat3.T, 1)
+
+    cax = ax1.matshow(norm_mat, interpolation="nearest")
+    ax1.set_title("Principal component 1", fontsize=fontsize)
+    cax2 = ax2.matshow(norm_mat2, interpolation="nearest")
+    ax2.set_title("Principal component 2", fontsize=fontsize)
+    cax3 = ax3.matshow(norm_mat3, interpolation="nearest")
+    ax3.set_title("Principal component 3", fontsize=fontsize)
+    fig.set_facecolor("w")
+    cb1 = fig.colorbar(cax, ax=ax1, fraction=0.046)
+    cb2 = fig.colorbar(cax2, ax=ax2, fraction=0.046)
+    cb3 = fig.colorbar(cax3, ax=ax3, fraction=0.046)
+    for i in [cb1, cb2, cb3]:
+        for t in i.ax.get_yticklabels():
+            t.set_fontsize(fontsize)
+    ax1.axis("off")
+    ax2.axis("off")
+    ax3.axis("off")
+    fig.tight_layout()
+    if output_path:
+        filename_fig_4 = os.path.join(output_path, "Fig4.pdf")
+        fig.savefig(filename_fig_4, dpi=300, bbox_inches="tight")
+    return fig
 
 
 def make_figure_5(model_mat_fits, grouped_stakes, w1_map_df, output_path, exp):
@@ -458,8 +465,9 @@ def make_figure_5(model_mat_fits, grouped_stakes, w1_map_df, output_path, exp):
         )
     g.fig.text(0.05, 0.90, "A", fontsize=fontsize + 10, color="black", weight="bold")
     g.fig.text(0.05, 0.45, "B", fontsize=fontsize + 10, color="black", weight="bold")
-    g.savefig(os.path.join(output_path, "Fig5.pdf"), dpi=300)
-
+    if output_path:
+        g.savefig(os.path.join(output_path, "Fig5.pdf"), dpi=300)
+    return g
 
 def make_figure_6(dprime_df, output_path):
     """
@@ -507,8 +515,9 @@ def make_figure_6(dprime_df, output_path):
         0, 3.5, "*", ha="center", color="black", fontsize=fontsize + 8, weight="bold",
     )
     g.fig.set_facecolor("w")
-    g.savefig(os.path.join(output_path, "Fig6.pdf"), dpi=300)
-
+    if output_path:
+        g.savefig(os.path.join(output_path, "Fig6.pdf"), dpi=300)
+    return g
 
 def main():
     parser = argparse.ArgumentParser(
@@ -551,8 +560,8 @@ def main():
         pca_df = data["pca_df"]
         dprime_df = data["dprime_df"]
         make_figure_6(dprime_df, output_path)
-        make_figure_3(pca_df, output_path)
-    make_figure_4(model_mat_fits, melted_mmf, output_path, exp)
+        make_figure_4(pca_df, output_path)
+    make_figure_3(model_mat_fits, melted_mmf, output_path, exp)
     make_figure_5(model_mat_fits, grouped_stakes, w1_map_df, output_path, exp)
 
 
