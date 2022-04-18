@@ -1,5 +1,7 @@
 # mb-cog-maps-paper
 
+[![DOI](https://zenodo.org/badge/456538566.svg)](https://zenodo.org/badge/latestdoi/456538566)
+
 Repository for the paper "Construction and Use of Cognitive Maps in Model-Based Control" 
 
 Organization:
