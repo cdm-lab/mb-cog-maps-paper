@@ -30,7 +30,7 @@ Here we describe two options for recreating our computational environment Docker
     - [Ubuntu](https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/)
     - [Debian](https://docs.docker.com/engine/installation/linux/docker-ce/debian/)
 2. Launch Docker and adjust the preferences to allocate sufficient resources (e.g. >= 4GB RAM)
-3. To build the Docker image, open a terminal window, navigate to your local copy of the repo, and run `docker build . -t mb-cog-maps` (note the first time build might take a while ~15 mins)
+3. To build the Docker image, open a terminal window, navigate to your local copy of the repo, and run `docker build -t mb-cog-maps .` (note the first time build might take a while ~15 mins)
 4. Use the image to run a container with the repo mounted as a volume so the code and data are accessible.
     - The command below will create a new container that maps the repository on your computer to the `/mnt` directory within the container, so that location is shared between your host OS and the container. Be sure to replace `LOCAL/REPO/PATH` with the path to the cloned repository on your own computer (you can get this by navigating to the repository in the terminal and typing `pwd`).  The below command will also share port `9999` with your host computer, so any Jupyter notebooks launched from *within* the container will be accessible at `localhost:9999` in your web browser
     - `docker run -it -p 9999:9999 --name mb-cog-maps -v /LOCAL/REPO/PATH:/mnt mb-cog-maps`
